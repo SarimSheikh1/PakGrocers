@@ -2562,6 +2562,113 @@
     });
     </script>
     <!-- ▲----- end add‑on  -----▲ -->
+    <!-- ▼---------------- 100-coins → 1 %-OFF “Redeem” patch ----------------▼ -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
     
+      /* ◼ 1. Locate the wallet we already injected earlier */
+      const wallet = document.getElementById('coinWallet');
+      if (!wallet) return;                      // safety
+    
+      /* ◼ 2. Create a small badge that shows current pending discount */
+      const discBadge = document.createElement('span');
+      discBadge.id = 'pgDiscountBadge';
+      discBadge.style.cssText =
+          'margin-left:.4rem;background:#046a38;color:#fff;padding:.2rem .6rem;' +
+          'border-radius:14px;font-size:.75rem;';
+      wallet.after(discBadge);
+    
+      /* helper to render % badge */
+      const DK   = 'pgDiscount';                // localStorage key
+      const getD = () => +localStorage.getItem(DK) || 0;
+      const setD = v => { localStorage.setItem(DK,v); renderDisc(); };
+      const renderDisc = () => {
+          const d = getD();
+          discBadge.textContent = d ? d + '% OFF' : '';
+          discBadge.style.display = d ? 'inline-block' : 'none';
+      };
+      renderDisc();
+    
+      /* ◼ 3. Add the “Redeem” button next to the wallet */
+      const redeemBtn = document.createElement('button');
+      redeemBtn.id = 'redeemCoins';
+      redeemBtn.textContent = 'Redeem 100 coins = 1 % OFF';
+      redeemBtn.style.cssText =
+          'margin-left:.6rem;background:#01411c;border:none;color:#fff;' +
+          'padding:.4rem .9rem;border-radius:4px;cursor:pointer;transition:.2s;';
+      redeemBtn.onmouseenter = () => redeemBtn.style.transform='translateY(-2px)';
+      redeemBtn.onmouseleave = () => redeemBtn.style.transform='translateY(0)';
+      wallet.parentNode.insertBefore(redeemBtn, wallet.nextSibling);
+    
+      /* ◼ 4. Access the coin helpers we added earlier */
+      const getCoins = () => +localStorage.getItem('pgCoins') || 0;
+      const setCoins = v  => { localStorage.setItem('pgCoins',v);
+                               document.getElementById('coinAmt').textContent = v; };
+    
+      /* ◼ 5. Redeem logic: –100 coins → +1 % discount  */
+      redeemBtn.addEventListener('click', () => {
+          const coins = getCoins();
+          if (coins < 100) {
+             alert('You need 100 coins to redeem 1 % OFF.\nCurrent coins: ' + coins);
+             return;
+          }
+          setCoins(coins - 100);
+          setD(getD() + 1);            // accumulate; e.g. 3 % after 3 redemptions
+          alert('Success 🎉 1 % OFF added!\nYou now have ' +
+                getD() + '% off on your next order.');
+      });
+    
+      /* ◼ 6. OPTIONAL ▸ clear discount after a “checkout” if you want
+             You can place this line wherever your real checkout happens:
+             setD(0);
+      */
+    
+    });
+    </script>
+    <!-- ▲-----------------------  end patch -----------------------▲ -->
+<!-- ▼----- auto-apply & clear “pgDiscount” on every purchase -----▼ -->
+<script>
+    (function () {
+    
+      /* helpers already used elsewhere */
+      const DKEY = 'pgDiscount';                      // where we stored % off
+      const getDisc = () => +localStorage.getItem(DKEY) || 0;
+      const clearDisc = () => { localStorage.removeItem(DKEY);
+                                const b = document.getElementById('pgDiscountBadge');
+                                if (b) b.style.display = 'none'; };
+    
+      /* 1️⃣  Wrap the existing addToCart() so the user sees the reduced price */
+      const oldAddToCart = window.addToCart;          // keep reference
+      window.addToCart = function(event, name, price, qty = 1) {
+          const disc = getDisc();
+          const finalPrice = disc ? Math.round(price * (100 - disc) / 100) : price;
+          oldAddToCart(event, name, finalPrice, qty);
+    
+          if (disc) {
+             const msg = `(${disc}% OFF applied – saved Rs. ${price - finalPrice})`;
+             document.getElementById('notification').textContent += ' ' + msg;
+          }
+      };
+    
+      /* 2️⃣  When the quick-view “Buy Now” button fires, clear the discount */
+      document.addEventListener('click', e => {
+          if (e.target.id === 'buyNowBtn') {
+             const disc = getDisc();
+             if (disc) {                                // show savings in alert
+                const title = document.getElementById('modalTitle').textContent;
+                const price = +document.getElementById('modalPrice')
+                                      .textContent.match(/\d+/)[0];
+                const qty   = +document.getElementById('quantity').value;
+                const saved = (price * disc / 100) * qty;
+                alert(`Your ${disc}% discount saved you Rs. ${saved.toFixed(0)}!`);
+                clearDisc();                            // use it once per order
+             }
+          }
+      });
+    
+    })();
+    </script>
+    <!-- ▲-----------------------------------------------------------▲ -->
+        
 </body>
 </html>
