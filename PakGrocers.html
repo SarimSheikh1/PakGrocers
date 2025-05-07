@@ -2669,6 +2669,345 @@
     })();
     </script>
     <!-- ▲-----------------------------------------------------------▲ -->
-        
+<!-- ▼----------------  Live Visitors · Live Reviews · Daily Deals  ----------------▼ -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    
+     /* ========== 1.  LIVE-VISITOR COUNTER ========== */
+     const VKEY = 'pgVisitorCount';
+     const visitors = (+localStorage.getItem(VKEY) || 0) + 1;
+     localStorage.setItem(VKEY, visitors);
+    
+     /* badge container (sticks middle-right) */
+     const liveBadge = document.createElement('div');
+     liveBadge.id = 'liveBadge';
+     liveBadge.innerHTML =
+       `<i class="fas fa-eye"></i> <span id="visNum">${visitors}</span>
+        <br><small style="font-size:.7rem;">visitors</small>`;
+     document.body.appendChild(liveBadge);
+    
+     /* keep it ticking – add a pseudo “new visitor” every 15-30 s */
+     setInterval(()=> {
+       const add = Math.random()<.5?0:1;
+       if(add){ const n = +document.getElementById('visNum').textContent + 1;
+                localStorage.setItem(VKEY,n);
+                document.getElementById('visNum').textContent = n; }
+     }, (15+Math.random()*15)*1000);
+    
+     /* ========== 2.  LIVE-REVIEWS PANEL ========== */
+     const reviews = [
+       '“Fresh items and speedy delivery!” – Awais R.',
+       '“Love the discounts on spices.” – Sana K.',
+       '“Customer service is 👍.” – Bilal M.',
+       '“Best bakery cakes in town!” – Hira S.',
+       '“My go-to store for wellness foods.” – Asad Q.'
+     ];
+     const panel = document.createElement('div');
+     panel.id = 'livePanel';
+     panel.innerHTML =
+       `<h4 style="margin-top:0">Live Reviews</h4>
+        <p id="liveText" style="margin:.8rem 0 1.2rem 0;font-style:italic;"></p>
+        <button id="closePanel">Close</button>`;
+     document.body.appendChild(panel);
+    
+     let idx = 0;
+     const showReview = ()=>{ document.getElementById('liveText').textContent = reviews[idx%reviews.length]; idx++;};
+     showReview(); setInterval(showReview, 4000);
+    
+     liveBadge.onclick = ()=> panel.classList.toggle('open');
+     document.getElementById('closePanel').onclick = ()=> panel.classList.remove('open');
+    
+     /* ========== 3.  DAILY DEALS SECTION ========== */
+     const dailyData = [
+       {name:'Premium Basmati Rice 5 kg', img:'https://images.unsplash.com/photo-1506806732259-39c2d0268443?auto=format&fit=crop&w=300&q=80', price:1500, cut:1800},
+       {name:'Multigrain Bread Loaf', img:'https://images.unsplash.com/photo-1608198093002-fbecfe8dd017?auto=format&fit=crop&w=300&q=80', price:220, cut:280},
+       {name:'Raw Organic Almonds 500 g', img:'https://images.unsplash.com/photo-1612197994328-6fd3b00de797?auto=format&fit=crop&w=300&q=80', price:820, cut:950},
+       {name:'Masala Chai Mix', img:'https://images.unsplash.com/photo-1617388430514-0f6d3e9d8df3?auto=format&fit=crop&w=300&q=80', price:380, cut:480}
+     ];
+     /* rotate daily by calendar date */
+     const seed = new Date().getDate() % dailyData.length;
+     const deals = [dailyData[seed], dailyData[(seed+1)%dailyData.length], dailyData[(seed+2)%dailyData.length]];
+    
+     const dealsHTML = `
+      <div class="products-section" id="dailyDeals">
+        <div class="section-title">
+          <h3>🔥 Daily Deals</h3>
+        </div>
+        <div class="products">
+          ${deals.map(d=>`
+          <div class="product">
+             <div class="product-image" style="background-image:url('${d.img}')">
+                <span class="product-badge">Deal</span></div>
+             <div class="product-info">
+                <div class="product-title">${d.name}</div>
+                <div class="product-price">Rs. ${d.price}
+                   <span class="original">Rs. ${d.cut}</span>
+                   <span class="discount-badge">${Math.round((d.cut-d.price)/d.cut*100)}% OFF</span>
+                </div>
+                <a href="#" class="buy-now" onclick="addToCart(event,'${d.name}',${d.price})">
+                   Add to Cart
+                </a>
+             </div>
+          </div>`).join('')}
+        </div>
+      </div>`;
+     document.querySelector('.banner').insertAdjacentHTML('afterend', dealsHTML);
+    
+    });
+    </script>
+    
+    <style>
+    /* —— live visitor badge —— */
+    #liveBadge{
+      position:fixed;right:-5px;top:50%;transform:translateY(-50%);
+      background:#01411c;color:#fff;padding:.5rem .7rem;border-radius:6px 0 0 6px;
+      font-weight:600;cursor:pointer;text-align:center;line-height:1.2;
+      box-shadow:0 0 12px rgba(0,0,0,.25);transition:right .3s;
+    }
+    #liveBadge:hover{right:0;}
+    
+    /* —— slide-out reviews panel —— */
+    #livePanel{
+      position:fixed;right:-280px;top:50%;transform:translateY(-50%);
+      width:260px;background:#fff;color:#333;border:2px solid #01411c;
+      border-radius:8px;padding:1rem;box-shadow:0 0 15px rgba(0,0,0,.25);
+      transition:right .4s z-index .2s;font-size:.9rem;z-index:1200;
+    }
+    #livePanel.open{right:10px;}
+    #livePanel button{
+      background:#046a38;color:#fff;border:none;border-radius:4px;
+      padding:.4rem .8rem;cursor:pointer;width:100%;
+    }
+    </style>
+    <!-- ▲------------------------------  end block  ------------------------------▲ -->
+<!-- ▼-----------  Live-Visitors bump · Feedback pop-up · Goodbye toast -----------▼ -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    
+      /* ————————————————— 0. make sure live-visitor counter is ≥ 8  ————————————————— */
+      const visEl = document.getElementById('visNum');
+      if (visEl) {
+         let v = +visEl.textContent;
+         if (v < 8) { v = 8 + Math.floor(Math.random()*2);            // 8 or 9
+                      visEl.textContent = v; localStorage.setItem('pgVisitorCount', v); }
+      }
+    
+      /* ————————————————— 1. live-reviews counter (just length of array) ————————————————— */
+      const revCountEl = document.createElement('div');
+      revCountEl.id = 'revCount';
+      revCountEl.style.cssText = 'font-size:.72rem;margin-bottom:.4rem;color:#046a38;text-align:center;';
+      const livePanel = document.getElementById('livePanel');
+      if (livePanel) {
+         const totalReviews = 50 + Math.floor(Math.random()*50);      // fake total 50-99
+         revCountEl.textContent = 'Reviews now: ' + totalReviews;
+         livePanel.insertBefore(revCountEl, livePanel.firstChild);
+      }
+    
+      /* ————————————————— 2. feedback pop-up after 120 000 ms ————————————————— */
+      if (!localStorage.getItem('pgFeedbackDone')) {
+        setTimeout(showFeedbackPopup, 120000);                        // 2 minutes
+      }
+    
+      function showFeedbackPopup(){
+        document.body.insertAdjacentHTML('beforeend',`
+    <div id="fbOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,.6);
+         display:flex;align-items:center;justify-content:center;z-index:3000;opacity:0;
+         animation:fadeInFB .4s forwards;">
+      <div style="background:#fff;border-radius:10px;padding:1.5rem;max-width:320px;width:90%;
+                  transform:scale(.8);animation:popFB .4s forwards;">
+        <h4 style="margin-top:0;color:#01411c;text-align:center;">We value your feedback!</h4>
+        <form id="fbForm">
+          <textarea id="fbText" required placeholder="Tell us anything..."
+            style="width:100%;height:80px;border:1px solid #ccc;border-radius:6px;padding:.6rem;
+                   resize:vertical;font-size:.9rem;"></textarea>
+          <button type="submit" style="margin-top:.8rem;width:100%;padding:.5rem 0;
+                  background:#046a38;color:#fff;border:none;border-radius:6px;
+                  font-weight:600;cursor:pointer;transition:background .2s;">Send</button>
+        </form>
+      </div>
+    </div>`);
+    
+        document.getElementById('fbForm').addEventListener('submit', e=>{
+           e.preventDefault();
+           localStorage.setItem('pgFeedbackDone','yes');
+           thankAnimation('Thank you for your feedback!');
+           document.getElementById('fbOverlay').remove();
+        });
+      }
+    
+      /* ————————————————— 3. goodbye toast when visitor leaves the page ————————————————— */
+      function showGoodbye(){
+          thankAnimation('Thank you Sir for coming to PakGrocers!');
+      }
+      window.addEventListener('beforeunload', showGoodbye);
+    
+      /* ————————————————— helper: slide-up toast + confetti ————————————————— */
+      function thankAnimation(text){
+         const toast = document.createElement('div');
+         toast.className = 'pgToast';
+         toast.textContent = text;
+         document.body.appendChild(toast);
+         createConfetti?.();                      // reuse your confetti function if present
+         setTimeout(()=>toast.remove(), 4000);
+      }
+    
+    });
+    
+    /* ————————————————  keyframe animations  ———————————————— */
+    </script>
+    <style>
+    @keyframes fadeInFB{to{opacity:1}}
+    @keyframes popFB  {to{transform:scale(1)}}
+    .pgToast{
+      position:fixed;bottom:-60px;left:50%;transform:translateX(-50%);
+      background:#046a38;color:#fff;padding:.7rem 1.2rem;border-radius:25px;
+      font-weight:600;font-size:.9rem;z-index:4000;box-shadow:0 3px 12px rgba(0,0,0,.25);
+      animation:toastSlide 4s forwards;
+    }
+    @keyframes toastSlide{
+      0%  {bottom:-60px;opacity:0;}
+      10% {bottom:30px;opacity:1;}
+      90% {bottom:30px;opacity:1;}
+     100% {bottom:-60px;opacity:0;}
+    }
+    </style>
+    <!-- ▲-----------------------------------  end patch  --------------------------------▲ -->
+   <!-- ▼-----------------------  Extra flair patch  -----------------------▼ -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    
+      /* ⭐ 1. VISITOR-BADGE: glow & +1 bubbles whenever number mutates */
+      const visNum = document.getElementById('visNum');
+      if (visNum){
+        /* ► MutationObserver to catch any number change */
+        const mo = new MutationObserver(()=>bubbleUp());
+        mo.observe(visNum,{childList:true,characterData:true,subtree:true});
+    
+        function bubbleUp(){
+           const bub = document.createElement('span');
+           bub.textContent='+1';
+           bub.style.cssText=
+               'position:absolute;right:6px;top:0;color:#ffc107;font-weight:700;' +
+               'animation:bubbleFly .8s forwards;pointer-events:none;font-size:.7rem;';
+           document.getElementById('liveBadge').appendChild(bub);
+           setTimeout(()=>bub.remove(),800);
+        }
+      }
+    
+      /* ⭐ 2. FEEDBACK: add 5-star rating & burst animation */
+      if(!localStorage.getItem('pgFeedbackDone')){
+        document.addEventListener('click', e=>{
+          if(e.target.id==='fbText'){ injectStars(); }
+        });
+      }
+    
+      function injectStars(){
+        if(document.getElementById('fbStars')) return;  // once only
+        const form = document.getElementById('fbForm');
+        const starWrap = document.createElement('div');
+        starWrap.id='fbStars';
+        starWrap.style.cssText='text-align:center;margin:.6rem 0;';
+        starWrap.innerHTML = [...Array(5)].map((_,i)=>`<span class="star" data-s="${i+1}">&#9734;</span>`).join('');
+        form.insertBefore(starWrap, form.firstChild);
+    
+        starWrap.querySelectorAll('.star').forEach(star=>{
+           star.onclick = ev=>{
+             const val = +ev.target.dataset.s;
+             starWrap.querySelectorAll('.star').forEach((s,i)=>s.innerHTML=i<val?'&#9733;':'&#9734;');
+             particleBurst(ev.pageX, ev.pageY, '#ff6a00');
+           };
+        });
+      }
+    
+      function particleBurst(x, y, color){
+        for(let i=0;i<14;i++){
+          const p=document.createElement('div');
+          p.className='burst';
+          p.style.background=color;
+          p.style.left=x+'px';
+          p.style.top =y+'px';
+          document.body.appendChild(p);
+          setTimeout(()=>p.remove(),600);
+        }
+      }
+    
+      /* ⭐ 3. PRODUCT CARDS: slide-in when scrolled into view */
+      const cards = document.querySelectorAll('.product');
+      const io = new IntersectionObserver((ents)=>{
+        ents.forEach(ent=>{
+          if(ent.isIntersecting){
+            ent.target.classList.add('slideIn');
+            io.unobserve(ent.target);
+          }
+        });
+      }, {threshold:.2});
+      cards.forEach(c=>io.observe(c));
+    
+    });
+    </script>
+    
+    <style>
+    /* — live-badge glow — */
+    #liveBadge{animation:badgeGlow 4s ease-in-out infinite alternate;}
+    @keyframes badgeGlow{
+      0%{box-shadow:0 0 6px rgba(255,255,255,.3);}
+      100%{box-shadow:0 0 18px rgba(255,255,255,.9);}
+    }
+    /* — “+1” bubble — */
+    @keyframes bubbleFly{
+      0%  {transform:translateY(0);opacity:1;}
+      100%{transform:translateY(-22px) scale(.9);opacity:0;}
+    }
+    
+    /* — particle burst dots — */
+    .burst{
+      position:fixed;width:6px;height:6px;border-radius:50%;
+      pointer-events:none;opacity:.9;
+      animation:burstMove .6s cubic-bezier(.61,.13,.37,1) forwards;
+    }
+    @keyframes burstMove{
+      100%{transform:translate(
+         calc((var(--dx,0) - 50px)), calc((var(--dy,0) - 50px)));opacity:0;}
+    }
+    .burst:nth-child(odd){--dx:60px;--dy:-40px;}
+    .burst:nth-child(even){--dx:-55px;--dy:35px;}
+    
+    /* — slide-in card effect — */
+    .product{opacity:0;transform:translateY(40px);transition:.6s ease-out;}
+    .product.slideIn{opacity:1;transform:translateY(0);}
+    
+    </style>
+    <!-- ▲----------------------------  end patch  ---------------------------▲ -->
+<!-- ▼-----------------  “Restart Site” button + logic  -----------------▼ -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    
+      /* 1️⃣  add button next to the wallet */
+      const rst = document.createElement('button');
+      rst.id = 'pgRestart';
+      rst.textContent = 'Restart Site';
+      rst.style.cssText =
+         'margin-left:.6rem;background:#ff4444;color:#fff;border:none;' +
+         'padding:.4rem .9rem;border-radius:4px;font-weight:bold;cursor:pointer;' +
+         'transition:transform .2s;';
+      rst.onmouseenter = () => rst.style.transform = 'translateY(-2px)';
+      rst.onmouseleave = () => rst.style.transform = 'translateY(0)';
+      document.querySelector('header').appendChild(rst);
+    
+      /* 2️⃣  keys we want to wipe on restart */
+      const KEYS = ['pgVisitorCount','pgCoins','pgDiscount','pgFeedbackDone','joined'];
+    
+      /* 3️⃣  handler */
+      rst.addEventListener('click', () => {
+         if (!confirm('Restart the site and reset counters?')) return;
+         KEYS.forEach(k => localStorage.removeItem(k));
+         /* optional: wipe everything → localStorage.clear(); */
+         location.reload(true);                       // force reload from server
+      });
+    
+    });
+    </script>
+    <!-- ▲---------------------  end restart patch  ---------------------▲ -->
+                     
 </body>
 </html>
