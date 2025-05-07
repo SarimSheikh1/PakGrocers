@@ -3008,6 +3008,53 @@
     });
     </script>
     <!-- ▲---------------------  end restart patch  ---------------------▲ -->
-                     
+     <!-- ▼----------------  5-second “Welcome Sir!” first-visit splash  ----------------▼ -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('pgWelcomeDone')) return;        // shown before? skip
+    
+      /* create overlay */
+      const wrap = document.createElement('div');
+      wrap.id = 'pgWelcome';
+      wrap.innerHTML = `<div class="pgWcontent">Welcome&nbsp;Sir!</div>`;
+      document.body.appendChild(wrap);
+    
+      /* after 5 s fade out & remove */
+      setTimeout(()=>wrap.classList.add('hide'), 5000);         // start fade
+      setTimeout(()=>wrap.remove(), 5700);                      // remove from DOM
+    
+      localStorage.setItem('pgWelcomeDone','yes');              // don’t show again
+    });
+    </script>
+    
+    <style>
+    /* full-screen cover */
+    #pgWelcome{
+      position:fixed;inset:0;background:#01411c;z-index:5000;display:flex;
+      align-items:center;justify-content:center;overflow:hidden;
+      animation:backPulse 5s ease-in-out infinite alternate;
+    }
+    #pgWelcome.hide{animation:none;transition:opacity .7s;opacity:0;}
+    
+    /* text styling */
+    .pgWcontent{
+      font-size:2.2rem;color:#fff;font-weight:700;letter-spacing:1px;
+      animation:textBounce 1.4s ease-in-out infinite;
+    }
+    
+    /* pulsating background */
+    @keyframes backPulse{
+      0%{background:#01411c;}
+      50%{background:#046a38;}
+      100%{background:#01411c;}
+    }
+    /* gentle bounce */
+    @keyframes textBounce{
+      0%,100%{transform:scale(1);}
+      50%{transform:scale(1.08);}
+    }
+    </style>
+    <!-- ▲--------------------------------  end splash  --------------------------------▲ -->
+                    
 </body>
 </html>
