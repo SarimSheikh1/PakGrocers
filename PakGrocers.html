@@ -2457,5 +2457,111 @@
             newsletterForm.reset();
         });
     </script>
+    <!-- ▼----- Wallet + “Join” bonus + one‑click‑vs‑computer Tic‑Tac‑Toe  -----▼ -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    
+      /* 1. Inject wallet badge & play button into header */
+      const header = document.querySelector('header');
+    
+      const wallet = document.createElement('span');
+      wallet.id = 'coinWallet';
+      wallet.innerHTML = '<i class="fas fa-coins"></i> <span id="coinAmt">0</span>';
+      wallet.style.cssText =
+         'margin-left:1rem;background:#ffc107;color:#01411c;padding:.35rem .9rem;' +
+         'border-radius:20px;font-weight:700;cursor:pointer;display:inline-block;';
+      header.appendChild(wallet);
+    
+      const playBtn = document.createElement('button');
+      playBtn.id = 'playTTT';
+      playBtn.textContent = 'Play Tic‑Tac‑Toe';
+      playBtn.style.cssText =
+         'margin-left:.5rem;background:none;border:none;color:#ff6a00;' +
+         'font-weight:bold;cursor:pointer;';
+      header.appendChild(playBtn);
+    
+      /* 2. Tiny coin engine (localStorage) */
+      const KEY = 'pgCoins';
+      const get = () => +localStorage.getItem(KEY) || 0;
+      const set = v => { localStorage.setItem(KEY, v); document.getElementById('coinAmt').textContent = v; };
+      const add = n => set(get() + n);
+      set(get());                                   // initial render
+    
+      /* 3. One‑time “Join Now” bonus (+50) */
+      const joinBtn = document.querySelector('.loyalty-section .buy-now');
+      joinBtn?.addEventListener('click', () => {
+         if (!localStorage.getItem('joined')) {
+            add(50); localStorage.setItem('joined', 'yes');
+            alert('Welcome 🎉 50 coins added to your wallet!');
+         } else { alert('You are already a member 😊'); }
+      });
+    
+      /* 4. Game modal helpers */
+      playBtn.addEventListener('click', openTTT);
+    
+      function openTTT() {
+        document.body.insertAdjacentHTML('beforeend', `
+    <div id="tttOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,.7);
+         display:flex;align-items:center;justify-content:center;z-index:2000;">
+      <div style="background:#fff;padding:2rem;border-radius:10px;max-width:320px;width:90vw;">
+        <h3 style="text-align:center;margin-bottom:1rem;">
+            Tic‑Tac‑Toe <small style="font-size:.7em">(win = +10 coins)</small></h3>
+        <table id="tttBoard" style="width:100%;border-collapse:collapse;font-size:2rem;">
+          ${[0,1,2].map(r=>`<tr>${[0,1,2].map(c=>`
+            <td data-i="${3*r+c}" style="width:33%;height:80px;border:2px solid #01411c;
+                text-align:center;cursor:pointer;"></td>`).join('')}</tr>`).join('')}
+        </table>
+        <button id="tttClose" style="margin-top:1rem;padding:.5rem 1rem;background:#046a38;
+            color:#fff;border:none;border-radius:4px;cursor:pointer;width:100%">
+            Close</button>
+      </div>
+    </div>`);
+        initTTT();
+      }
+    
+      /* 5. Single‑click user move, auto computer move */
+      function initTTT () {
+        const board  = Array(9).fill('');
+        const wins   = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],
+                        [2,5,8],[0,4,8],[2,4,6]];
+        const cells  = [...document.querySelectorAll('#tttBoard td')];
+        let finished = false;
+    
+        const check = p => wins.some(l => l.every(i => board[i] === p));
+    
+        const end = msg => {
+          finished = true;
+          if (msg) alert(msg);
+          setTimeout(()=>document.getElementById('tttOverlay')?.remove(),200);
+        };
+    
+        const computerMove = () => {
+          if (finished) return;
+          const empty = board.map((v,i)=>v===''?i:null).filter(i=>i!==null);
+          if (!empty.length) return end('Draw!');
+          const i = empty[Math.floor(Math.random()*empty.length)];
+          board[i]='O'; cells[i].textContent='O';
+          if (check('O')) end('Computer wins!');
+          else if (empty.length===1) end('Draw!');
+        };
+    
+        cells.forEach(td=>{
+          td.onclick = () => {
+            const i = +td.dataset.i;
+            if (board[i] || finished) return;
+            board[i] = 'X'; td.textContent='X';
+    
+            if (check('X')) { add(10); return end('You win! +10 coins'); }
+            computerMove();
+          };
+        });
+    
+        document.getElementById('tttClose').onclick = () => end();
+      }
+    
+    });
+    </script>
+    <!-- ▲----- end add‑on  -----▲ -->
+    
 </body>
 </html>
