@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PakGrocers – One-Page + Slide-in Shop + Contact</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{--green:#046a38;--dark:#01411c;--orange:#ff6a00;--bg:#f5f5f5;--rad:8px;}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',sans-serif;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:#333;overflow-x:hidden}
+
+/* ── header & nav ─────────────────────────── */
+header{background:var(--green);color:#fff;text-align:center;padding:1rem 0;
+       box-shadow:0 2px 10px rgba(0,0,0,.2)}
+nav{background:var(--dark);position:sticky;top:0;z-index:100}
+nav ul{display:flex;justify-content:center;list-style:none}
+nav li{margin:0 1rem;position:relative}
+nav a{color:#fff;text-decoration:none;font-weight:500;padding:.6rem 0;display:block}
+nav li::after{content:'';position:absolute;left:0;bottom:-6px;height:2px;width:0;
+              background:var(--orange);transition:.3s}
+nav li:hover::after{width:100%}
+nav a:hover{color:var(--orange)}
+
+/* ── hero ─────────────────────────────────── */
+.hero{height:280px;background:url('https://images.unsplash.com/photo-1606787366850-de6330128bfc?auto=format&fit=crop&w=1200&q=80') center/cover;
+      display:flex;align-items:center;justify-content:center;color:#fff;position:relative}
+.hero::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.5)}
+.hero h1{position:relative;font-size:2.4rem;z-index:2;text-shadow:0 0 6px rgba(0,0,0,.4)}
+
+/* ── home cards ───────────────────────────── */
+.container{max-width:1200px;margin:auto;padding:2rem 1rem}
+.home-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1.2rem}
+.home-card{background:#fff;border-radius:var(--rad);padding:1.4rem;text-align:center;
+           box-shadow:0 4px 10px rgba(0,0,0,.1);font-weight:600}
+.home-card:hover{transform:translateY(-4px);transition:.25s}
+
+/* ▬▬▬ SHOP OVERLAY ▬▬▬ */
+.shop-overlay{position:fixed;top:0;right:-100%;width:100%;height:100vh;background:var(--bg);
+              overflow-y:auto;z-index:1200;box-shadow:-4px 0 18px rgba(0,0,0,.25);
+              transition:right .65s cubic-bezier(.25,.8,.25,1)}
+.shop-overlay.active{right:0}
+.close-shop{position:sticky;top:0;width:100%;text-align:left;font-size:1rem;
+            background:var(--dark);color:#fff;border:none;padding:.9rem 1.2rem;cursor:pointer}
+.close-shop i{margin-right:.5rem}
+.shop-wrap{max-width:1200px;margin:auto;padding:2rem 1.2rem}
+.shop-title{font-size:1.7rem;color:var(--green);margin-bottom:1.2rem}
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1.5rem}
+.product{background:#fff;border-radius:var(--rad);box-shadow:0 4px 8px rgba(0,0,0,.1);
+         overflow:hidden;display:flex;flex-direction:column;opacity:0;transform:translateY(40px);
+         animation:fadeSlide .6s forwards}
+@keyframes fadeSlide{to{opacity:1;transform:translateY(0)}}
+.product-image{height:180px;background-size:cover;background-position:center}
+.product-info{padding:1rem}
+.product-title{font-weight:600;margin-bottom:.3rem}
+.product-price{font-weight:700;color:var(--green)}
+.product-price .cut{color:#777;text-decoration:line-through;font-size:.85rem;margin-left:.3rem}
+.rating{color:#ffc107;font-size:.9rem;margin:.4rem 0 .6rem}
+.buy-now{display:inline-block;background:var(--orange);color:#fff;padding:.5rem .9rem;
+         border-radius:4px;font-weight:bold;text-decoration:none;text-align:center}
+
+/* ── contact section ───────────────────────── */
+#contact{background:#fff;padding:2.5rem 1rem;border-top:4px solid var(--green)}
+.contact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem}
+.contact-card{display:flex;align-items:flex-start}
+.contact-card i{color:var(--orange);font-size:1.4rem;margin-right:.8rem}
+.contact-card h4{margin-bottom:.4rem;color:var(--green);font-size:1.1rem}
+
+/* ── footer ───────────────────────────────── */
+footer{background:var(--dark);color:#fff;text-align:center;padding:1rem;margin-top:2rem}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo" style="font-size:1.9rem;font-weight:bold;">PakGrocers</div>
+  <div class="tagline" style="font-style:italic;opacity:.9">Your Online Grocery Store</div>
+</header>
+
+<nav>
+  <ul>
+    <li><a href="#home"  class="nav-link">Home</a></li>
+    <li><a href="#shop"  id="openShop">Shop</a></li>
+    <li><a href="#contact" class="nav-link">Contact</a></li>
+  </ul>
+</nav>
+
+<section id="home" class="hero">
+  <h1>Welcome to PakGrocers</h1>
+</section>
+
+<div class="container">
+  <h2 style="color:var(--green);margin-bottom:1rem">Popular Categories</h2>
+  <div class="home-grid">
+    <div class="home-card">Dry Fruits &amp; Nuts</div>
+    <div class="home-card">Spices &amp; Masalas</div>
+    <div class="home-card">Bakery &amp; Biscuits</div>
+    <div class="home-card">Wellness &amp; Superfoods</div>
+  </div>
+</div>
+
+<!-- ▬▬▬ SHOP OVERLAY ▬▬▬ -->
+<section id="shopOverlay" class="shop-overlay" aria-hidden="true">
+  <button id="closeShop" class="close-shop"><i class="fas fa-arrow-left"></i> Back</button>
+  <div class="shop-wrap">
+    <h2 class="shop-title">All Products</h2>
+    <div id="shopGrid" class="shop-grid"></div>
+  </div>
+</section>
+
+<!-- ▬▬▬ CONTACT ▬▬▬ -->
+<section id="contact">
+  <div class="container">
+    <h2 style="color:var(--green);margin-bottom:1.2rem">Contact Us</h2>
+    <div class="contact-grid">
+      <div class="contact-card">
+        <i class="fas fa-phone-alt"></i>
+        <div>
+          <h4>Phone</h4>
+          <p>+92 322 8668488</p>
+        </div>
+      </div>
+      <div class="contact-card">
+        <i class="fab fa-whatsapp"></i>
+        <div>
+          <h4>WhatsApp</h4>
+          <p>+92 322 8668488</p>
+        </div>
+      </div>
+      <div class="contact-card">
+        <i class="fas fa-envelope"></i>
+        <div>
+          <h4>Email</h4>
+          <p>info@pakgrocers.com</p>
+        </div>
+      </div>
+      <div class="contact-card">
+        <i class="fas fa-map-marker-alt"></i>
+        <div>
+          <h4>Address</h4>
+          <p>DHA Phase 8,<br>Rawalpindi, Punjab</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>© 2025 PakGrocers – All rights reserved</footer>
+
+<!-- ─────────────────── JavaScript ─────────────────── -->
+<script>
+/* sample product data */
+const PRODUCTS=[
+ {name:'National Kheer Mix',img:'https://images.unsplash.com/photo-1590856029826-c7a73142bbf1?auto=format&fit=crop&w=300&q=80',price:220,cut:250,stars:4.5},
+ {name:'Shan Biryani Masala',img:'https://images.unsplash.com/photo-1601643157091-ce5c665179ab?auto=format&fit=crop&w=300&q=80',price:150,stars:4},
+ {name:'Nestlé Milkpak UHT',img:'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=300&q=80',price:180,cut:200,stars:5},
+ {name:'English Cake Fruit',img:'https://images.unsplash.com/photo-1587241321921-91a834d6d191?auto=format&fit=crop&w=300&q=80',price:450,cut:500,stars:4},
+ {name:'Golden Milk Latte Mix',img:'https://images.unsplash.com/photo-1611654878701-67b3a6c33b4d?auto=format&fit=crop&w=300&q=80',price:950,cut:1050,stars:4.5}
+];
+
+const shopOvr=document.getElementById('shopOverlay');
+const openShop=document.getElementById('openShop');
+const closeShop=document.getElementById('closeShop');
+const grid=document.getElementById('shopGrid');
+
+/* star helper */
+const stars=n=>{
+  const full=Math.floor(n),half=n-full>=.5;
+  return '★'.repeat(full)+(half?'½':'')+'☆'.repeat(5-full-(half?1:0));
+};
+
+/* build grid once */
+function buildGrid(){
+  grid.innerHTML=PRODUCTS.map((p,i)=>`
+    <div class="product" style="animation-delay:${i*70}ms">
+      <div class="product-image" style="background-image:url('${p.img}')"></div>
+      <div class="product-info">
+        <div class="product-title">${p.name}</div>
+        <div class="rating">${stars(p.stars)}</div>
+        <div class="product-price">Rs.&nbsp;${p.price}${p.cut?` <span class="cut">Rs.&nbsp;${p.cut}</span>`:''}</div>
+        <a href="#" class="buy-now" onclick="addToCart(event,'${p.name}',${p.price})">Add to Cart</a>
+      </div>
+    </div>`).join('');
+}
+
+/* overlay handlers */
+function showShop(){
+  if(!shopOvr.classList.contains('active')) buildGrid();
+  shopOvr.classList.add('active');
+  document.body.style.overflow='hidden';
+  history.pushState({shop:true},'', '#shop');
+}
+function hideShop(){
+  shopOvr.classList.remove('active');
+  document.body.style.overflow='auto';
+}
+
+openShop.addEventListener('click',e=>{e.preventDefault();showShop();});
+closeShop.addEventListener('click',()=>history.back());
+window.addEventListener('popstate',e=>{if(!(e.state&&e.state.shop)) hideShop();});
+
+/* close shop when Home or Contact links are clicked */
+document.querySelectorAll('.nav-link').forEach(link=>{
+  link.addEventListener('click',()=>hideShop());
+});
+
+/* minimal cart stub */
+function addToCart(ev,name,price){
+  if(ev) ev.preventDefault();
+  alert(`${name} (Rs. ${price}) added ✔`);
+}
+</script>
+</body>
+</html>
